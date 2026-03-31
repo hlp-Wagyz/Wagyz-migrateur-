@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wagyz — Modélisateur de stratégie de migration v15</title>
+<style>
+:root{
+  --color-text-primary:#1a1a1a;
+  --color-text-secondary:#555;
+  --color-text-tertiary:#888;
+  --color-background-primary:#fff;
+  --color-background-secondary:#f5f5f5;
+  --color-background-success:#e8f7f0;
+  --color-background-warning:#fff8e6;
+  --color-background-danger:#fdf0f0;
+  --color-background-info:#e8f1fb;
+  --color-border-primary:#1a1a1a;
+  --color-border-secondary:#ccc;
+  --color-border-tertiary:#e8e8e8;
+  --color-border-success:#1D9E75;
+  --color-border-warning:#EF9F27;
+  --color-border-danger:#E24B4A;
+  --color-border-info:#185FA5;
+  --color-text-success:#0F6E56;
+  --color-text-warning:#7D4A08;
+  --color-text-danger:#9B1C1C;
+  --color-text-info:#185FA5;
+  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --border-radius-md:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:#f9f9f9;color:var(--color-text-primary);padding:16px;min-height:100vh}
+.app{max-width:900px;margin:0 auto;background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 16px rgba(0,0,0,.07)}
+.w{padding:4px 0}
+.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--color-border-tertiary)}
+.hdr-t{font-size:16px;font-weight:600;color:var(--color-text-primary)}
+.hdr-s{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.nav{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:14px;overflow-x:auto;gap:2px}
+.nav button{padding:7px 11px;font-size:11px;border:none;background:none;color:var(--color-text-secondary);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;font-family:var(--font-sans);transition:color .15s}
+.nav button.a{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);font-weight:500}
+.nav button:hover:not(.a){color:var(--color-text-primary)}
+.pane{display:none}.pane.a{display:block}
+.sec{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-tertiary);margin:12px 0 6px}
+.sr{display:grid;grid-template-columns:160px 1fr 100px;align-items:center;gap:6px;margin-bottom:6px}
+.sr label{font-size:11px;color:var(--color-text-secondary);line-height:1.3}
+.sr input[type=range]{width:100%;min-width:0;accent-color:#1D9E75}
+.ni{width:100px;padding:4px 8px;border:0.5px solid var(--color-border-secondary);border-radius:5px;background:var(--color-background-primary);color:var(--color-text-primary);font-size:12px;font-weight:500;font-family:var(--font-sans);text-align:right}
+.ni:focus{outline:none;border-color:var(--color-border-primary)}
+.srt{display:grid;grid-template-columns:160px 1fr 100px auto;align-items:center;gap:6px;margin-bottom:6px}
+.srt label{font-size:11px;color:var(--color-text-secondary);line-height:1.3}
+.srt input[type=range]{width:100%;min-width:0;accent-color:#1D9E75}
+.rtag{font-size:10px;padding:1px 6px;border-radius:8px;font-weight:500;white-space:nowrap}
+.rtag-a{background:var(--color-background-success);color:var(--color-text-success)}
+.rtag-b{background:var(--color-background-warning);color:var(--color-text-warning)}
+.rtag-c{background:var(--color-background-danger);color:var(--color-text-danger)}
+.ss{display:grid;grid-template-columns:160px 1fr;align-items:center;gap:6px;margin-bottom:6px}
+.ss label{font-size:11px;color:var(--color-text-secondary)}
+.ss select,.ss input[type=date]{width:100%;padding:4px 7px;border:0.5px solid var(--color-border-secondary);border-radius:6px;background:var(--color-background-primary);color:var(--color-text-primary);font-size:11px;font-family:var(--font-sans)}
+.cards{display:grid;gap:7px;margin:8px 0}
+.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:600px){.c4{grid-template-columns:repeat(2,1fr)}.c3{grid-template-columns:repeat(2,1fr)}.sr,.srt{grid-template-columns:130px 1fr 80px}}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px}
+.card .l{font-size:10px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.card .v{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.card .s{font-size:10px;color:var(--color-text-secondary);margin-top:2px}
+.bdg{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.bg{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.ok{background:var(--color-background-success);color:var(--color-text-success)}
+.wa{background:var(--color-background-warning);color:var(--color-text-warning)}
+.da{background:var(--color-background-danger);color:var(--color-text-danger)}
+.inf{background:var(--color-background-info);color:var(--color-text-info)}
+.al{border-left:3px solid;padding:7px 11px;border-radius:0 6px 6px 0;font-size:11px;margin-bottom:5px;line-height:1.5}
+.al.ok{border-color:var(--color-border-success);background:var(--color-background-success);color:var(--color-text-success)}
+.al.wa{border-color:var(--color-border-warning);background:var(--color-background-warning);color:var(--color-text-warning)}
+.al.da{border-color:var(--color-border-danger);background:var(--color-background-danger);color:var(--color-text-danger)}
+.al.inf{border-color:var(--color-border-info);background:var(--color-background-info);color:var(--color-text-info)}
+.gt{height:7px;border-radius:4px;background:var(--color-border-tertiary);overflow:hidden;margin:4px 0 2px}
+.gf{height:100%;border-radius:4px;transition:width .3s}
+.brow{display:flex;align-items:center;gap:7px;margin-bottom:4px;font-size:11px}
+.btrk{flex:1;height:12px;background:var(--color-border-tertiary);border-radius:3px;overflow:hidden}
+.bfil{height:100%;border-radius:3px;transition:width .3s}
+.mad-box{border:1.5px solid var(--color-border-warning);border-radius:var(--border-radius-md);padding:10px;margin:7px 0;background:var(--color-background-warning)}
+.mad-t{font-size:11px;font-weight:500;color:var(--color-text-warning);margin-bottom:5px}
+.date-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.date-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px}
+.date-card .dl{font-size:10px;color:var(--color-text-tertiary);text-transform:uppercase;margin-bottom:4px}
+.date-card .dv{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-top:3px}
+.date-card input[type=date]{width:100%;padding:4px 7px;border:0.5px solid var(--color-border-secondary);border-radius:6px;background:var(--color-background-primary);color:var(--color-text-primary);font-size:11px;font-family:var(--font-sans);margin-top:4px}
+.tline{position:relative;height:22px;border-radius:5px;background:var(--color-border-tertiary);overflow:hidden;margin:8px 0}
+.tline-bar{position:absolute;height:100%;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#fff;overflow:hidden;white-space:nowrap;padding:0 5px;transition:all .3s}
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{text-align:left;padding:4px 7px;border-bottom:0.5px solid var(--color-border-tertiary);font-weight:500;color:var(--color-text-secondary);font-size:10px;text-transform:uppercase}
+.tbl td{padding:5px 7px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.tbl tr:last-child td{border:none}
+.seg-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:7px 0}
+.seg{border-radius:var(--border-radius-md);padding:9px;position:relative;min-height:60px}
+.seg-t{font-size:11px;font-weight:500;margin-bottom:2px}
+.seg-s{font-size:10px;line-height:1.4;opacity:.8}
+.seg-n{font-size:16px;font-weight:500;position:absolute;top:7px;right:9px}
+.sbtn{font-size:11px;color:var(--color-text-info);background:none;border:none;cursor:pointer;font-family:var(--font-sans);text-decoration:underline;padding:0}
+.rec-banner{border-radius:var(--border-radius-md);padding:14px 16px;margin-bottom:12px;border:2px solid}
+.axes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
+@media(max-width:600px){.axes{grid-template-columns:1fr}}
+.axe{border-radius:var(--border-radius-md);padding:12px;border:1.5px solid var(--color-border-tertiary);cursor:pointer;transition:border-color .15s,background .15s;background:var(--color-background-primary)}
+.axe.sel{border-width:2px}
+.axe-tag{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.axe-dur{font-size:22px;font-weight:500;margin-bottom:4px}
+.axe-row{font-size:10px;color:var(--color-text-secondary);margin-bottom:2px}
+.axe-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:8px;font-weight:500;margin-top:5px}
+.rrow{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.rdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ph-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.ph-lbl{font-size:10px;width:165px;flex-shrink:0;color:var(--color-text-secondary);line-height:1.3}
+.ph-trk{flex:1;height:20px;background:var(--color-border-tertiary);border-radius:3px;position:relative;overflow:hidden}
+.ph-bar{height:100%;border-radius:3px;position:absolute;display:flex;align-items:center;padding-left:5px;font-size:9px;font-weight:500;color:#fff;overflow:hidden;white-space:nowrap;transition:all .35s}
+.m-axis{display:flex;margin-left:173px;margin-bottom:3px}
+.m-tick{flex:1;font-size:9px;color:var(--color-text-tertiary);text-align:center}
+.cal-row{display:flex;gap:5px;margin:10px 0;flex-wrap:wrap}
+.cal-m{border-radius:6px;padding:6px 7px;text-align:center;min-width:50px;font-size:10px;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.cal-m .cm-l{font-weight:500;margin-bottom:2px}
+.cal-m .cm-p{font-size:9px;color:var(--color-text-secondary);line-height:1.3}
+.jrow{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.jrow:last-child{border:none}
+.jdate{font-size:11px;font-weight:500;min-width:95px;flex-shrink:0}
+.jdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:2px}
+.jlbl{font-size:11px;color:var(--color-text-primary)}
+.jcond{font-size:10px;color:var(--color-text-secondary);margin-top:2px}
+/* ── BOUTON MAGIQUE ── */
+.magic-btn{width:100%;padding:16px;border-radius:var(--border-radius-md);border:none;cursor:pointer;font-family:var(--font-sans);font-size:15px;font-weight:600;margin-bottom:12px;transition:opacity .2s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#5B3FA8,#0D6B53);color:#fff;letter-spacing:.02em}
+.magic-btn:hover{opacity:.88}
+.magic-btn:active{opacity:.75;transform:scale(.99)}
+.magic-result{border-radius:var(--border-radius-md);border:2px solid var(--color-border-info);background:var(--color-background-info);padding:14px;margin-bottom:12px;display:none}
+.magic-result .mr-title{font-size:13px;font-weight:500;color:var(--color-text-info);margin-bottom:10px}
+.magic-result .mr-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
+@media(max-width:600px){.magic-result .mr-grid{grid-template-columns:repeat(2,1fr)}}
+.magic-result .mr-card{background:var(--color-background-primary);border-radius:var(--border-radius-md);padding:9px;border:0.5px solid var(--color-border-info)}
+.magic-result .mr-card .ml{font-size:10px;color:var(--color-text-secondary);margin-bottom:3px}
+.magic-result .mr-card .mv{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.magic-result .mr-card .mo{font-size:10px;color:var(--color-text-tertiary);text-decoration:line-through;margin-top:1px}
+.magic-result .mr-detail{font-size:11px;color:var(--color-text-info);line-height:1.7;border-top:0.5px solid var(--color-border-info);padding-top:8px;margin-top:8px;white-space:pre-line}
+.magic-warn{border-radius:var(--border-radius-md);border:2px solid var(--color-border-danger);background:var(--color-background-danger);padding:12px;margin-bottom:10px;font-size:12px;color:var(--color-text-danger);display:none}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="w">
+<div class="hdr">
+  <div>
+    <div class="hdr-t">Modélisateur de stratégie de migration Wagyz</div>
+    <div class="hdr-s">v15 — Postulats recalibrés · Bouton magique ✦ · 1h création dossier + 3 min/salarié · Gain Silae 50%</div>
+  </div>
+  <span class="bdg bg" id="TOP">—</span>
+</div>
+
+<div class="nav">
+  <button class="a" onclick="SW('cabinet',this)">Cabinet</button>
+  <button onclick="SW('ccn',this)">CCN & migrabilité</button>
+  <button onclick="SW('charge',this)">Charge réelle</button>
+  <button onclick="SW('equipes',this)">Équipes</button>
+  <button onclick="SW('strategie',this)">Stratégie</button>
+  <button onclick="SW('planning',this)">Planning</button>
+  <button onclick="SW('roi',this)">ROI & synthèse ✦</button>
+</div>
+
+<!-- CABINET -->
+<div class="pane a" id="P-cabinet">
+  <div class="sec">Dimensions du cabinet</div>
+  <div class="sr"><label>Gestionnaires de paie (GP)</label><input type="range" min="1" max="500" step="1" value="20" id="R-gp" oninput="sync('gp','R')"><input class="ni" type="number" min="1" max="500" value="20" id="N-gp" oninput="sync('gp','N')"></div>
+  <div class="sr"><label>Dossiers clients au total</label><input type="range" min="100" max="25000" step="50" value="900" id="R-dos" oninput="sync('dos','R')"><input class="ni" type="number" min="100" max="25000" value="900" id="N-dos" oninput="sync('dos','N')"></div>
+  <div class="sr"><label>Bulletins de paie / mois</label><input type="range" min="500" max="200000" step="500" value="7500" id="R-bul" oninput="sync('bul','R')"><input class="ni" type="number" min="500" max="200000" value="7500" id="N-bul" oninput="sync('bul','N')"></div>
+  <div class="sr"><label>Sites / agences</label><input type="range" min="1" max="120" step="1" value="4" id="R-sites" oninput="sync('sites','R')"><input class="ni" type="number" min="1" max="120" value="4" id="N-sites" oninput="sync('sites','N')"></div>
+  <div class="sr"><label>Dont dossiers MAD (%)</label><input type="range" min="0" max="60" step="1" value="10" id="R-mad" oninput="sync('mad','R')"><input class="ni" type="number" min="0" max="60" value="10" id="N-mad" oninput="sync('mad','N')"></div>
+  <div class="ss"><label>Logiciel source</label><select id="I-src" onchange="CALC()"><option value="silae">Silae (import natif — gain -50%)</option><option value="autre">Autre logiciel</option></select></div>
+  <div class="sec">SIRH connecté</div>
+  <div class="ss"><label>SIRH en place</label><select id="I-sirh" onchange="CALC()"><option value="aucun">Aucun SIRH</option><option value="lucca">Lucca (+30 min/dos. API)</option><option value="staffgo">Staff&amp;Go (+30 min/dos. API)</option><option value="eurecia">Eurécia (+30 min/dos. API)</option><option value="kammi">Kammi (+30 min/dos. API)</option></select></div>
+  <div class="sr" id="sirh-dos-row" style="display:none"><label>Dossiers concernés par le SIRH</label><input type="range" min="0" max="5000" step="10" value="0" id="R-sirhd" oninput="sync('sirhd','R')"><input class="ni" type="number" min="0" max="5000" value="0" id="N-sirhd" oninput="sync('sirhd','N')"></div>
+  <div class="al wa" id="O-sirh-info" style="display:none;margin-top:4px">—</div>
+  <div class="sec">Dates du projet</div>
+  <div class="date-grid">
+    <div class="date-card"><div class="dl">Démarrage cible</div>
+      <input type="date" id="I-dstart" onchange="CALC()">
+      <div class="dv" id="O-dstart-l">—</div>
+    </div>
+    <div class="date-card"><div class="dl">Fin de migration cible</div>
+      <input type="date" id="I-dend" onchange="CALC()">
+      <div class="dv" id="O-dend-l">—</div>
+      <div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px" id="O-dend-i">—</div>
+    </div>
+  </div>
+  <div id="O-tl-wrap" style="display:none">
+    <div class="tline"><div class="tline-bar" id="O-tl-bar" style="left:0;width:10%;background:#1D9E75">—</div></div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--color-text-tertiary);margin-bottom:4px" id="O-tl-lbls"></div>
+    <div class="al inf" id="O-tl-alert">—</div>
+  </div>
+  <div class="sec">Ratios calculés</div>
+  <div class="cards c4">
+    <div class="card"><div class="l">Dossiers / GP</div><div class="v" id="O-dg">—</div><div class="s">Seuil : 40</div></div>
+    <div class="card"><div class="l">Bulletins / GP</div><div class="v" id="O-bg">—</div><div class="s">Seuil : 300</div></div>
+    <div class="card"><div class="l">Dossiers MAD</div><div class="v" id="O-nmad">—</div><div class="s">segment complexe</div></div>
+    <div class="card"><div class="l">GP / site</div><div class="v" id="O-gs">—</div><div class="s">Seuil : 5</div></div>
+  </div>
+  <div id="O-rat-a"></div>
+</div>
+
+<!-- CCN -->
+<div class="pane" id="P-ccn">
+  <div class="sec">Catalogue CCN</div>
+  <div class="sr"><label>CCN uniques portefeuille</label><input type="range" min="10" max="450" step="5" value="80" id="R-ccn" oninput="sync('ccn','R')"><input class="ni" type="number" min="10" max="450" value="80" id="N-ccn" oninput="sync('ccn','N')"></div>
+  <div class="sr"><label>CCN disponibles sur Wagyz</label><input type="range" min="5" max="450" step="5" value="55" id="R-cdispo" oninput="sync('cdispo','R')"><input class="ni" type="number" min="5" max="450" value="55" id="N-cdispo" oninput="sync('cdispo','N')"></div>
+  <div class="sr"><label>CCN à recetter (sous 6 mois)</label><input type="range" min="0" max="200" step="5" value="15" id="R-crec" oninput="sync('crec','R')"><input class="ni" type="number" min="0" max="200" value="15" id="N-crec" oninput="sync('crec','N')"></div>
+  <div class="sr"><label>% dossiers particularités (JEI/ES/TS/FJ)</label><input type="range" min="0" max="60" step="1" value="12" id="R-parti" oninput="sync('parti','R')"><input class="ni" type="number" min="0" max="60" value="12" id="N-parti" oninput="sync('parti','N')"></div>
+  <div class="sec">Critères de non-migrabilité</div>
+  <div style="border:1.5px solid var(--color-border-danger);border-radius:var(--border-radius-md);padding:11px;margin-bottom:9px;background:var(--color-background-danger)">
+    <div style="font-size:11px;font-weight:500;color:var(--color-text-danger);margin-bottom:8px">🚫 Dossiers bloquants — non migrables en l'état</div>
+    <div class="sr"><label style="color:var(--color-text-danger);font-size:11px">Dossiers gestion CP sur Silae<br><span style="font-size:10px;font-weight:400;opacity:.8">Fonctionnalité non disponible sur Wagyz</span></label><input type="range" min="0" max="5000" step="10" value="0" id="R-cpsilae" oninput="sync('cpsilae','R')"><input class="ni" type="number" min="0" max="5000" value="0" id="N-cpsilae" oninput="sync('cpsilae','N')"></div>
+    <div id="O-cp-info" style="font-size:10px;color:var(--color-text-danger);margin-top:5px;line-height:1.5">Ces dossiers seront automatiquement exclus du périmètre migrable. Migration possible uniquement après disponibilité de la fonctionnalité CP sur Wagyz.</div>
+  </div>
+  <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:11px;margin-bottom:9px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px"><span style="font-size:12px;font-weight:500">Décomposition du portefeuille</span><span class="bdg bg" id="O-mbadge">—</span></div>
+    <div class="brow"><span style="width:140px;flex-shrink:0">Migrables aujourd'hui</span><div class="btrk"><div class="bfil" id="O-bm" style="background:#1D9E75"></div></div><span style="min-width:60px;text-align:right;font-weight:500" id="O-nm">—</span></div>
+    <div class="brow"><span style="width:140px;flex-shrink:0">Potentiel 6 mois</span><div class="btrk"><div class="bfil" id="O-br" style="background:#EF9F27"></div></div><span style="min-width:60px;text-align:right;font-weight:500" id="O-nr">—</span></div>
+    <div class="brow"><span style="width:140px;flex-shrink:0">CCN non disponibles</span><div class="btrk"><div class="bfil" id="O-be" style="background:#E24B4A"></div></div><span style="min-width:60px;text-align:right;font-weight:500" id="O-ne">—</span></div>
+    <div class="brow"><span style="width:140px;flex-shrink:0">Blocage CP Silae 🚫</span><div class="btrk"><div class="bfil" id="O-bcp" style="background:#7B1D1D"></div></div><span style="min-width:60px;text-align:right;font-weight:500;color:var(--color-text-danger)" id="O-ncp">—</span></div>
+    <div class="brow"><span style="width:140px;flex-shrink:0">Dont dossiers MAD</span><div class="btrk"><div class="bfil" id="O-bma" style="background:#BA7517"></div></div><span style="min-width:60px;text-align:right;font-weight:500" id="O-nma2">—</span></div>
+  </div>
+  <div class="cards c3">
+    <div class="card"><div class="l">Migrables maintenant</div><div class="v" id="O-mn">—</div><div class="s" id="O-mnp">—</div></div>
+    <div class="card"><div class="l">Potentiel 6 mois</div><div class="v" id="O-p6">—</div><div class="s">CCN à recetter livrées</div></div>
+    <div class="card"><div class="l">Dont MAD à migrer</div><div class="v" id="O-pmad">—</div><div class="s">×coef CDC</div></div>
+  </div>
+  <div class="sec">Segmentation effort × enjeu</div>
+  <div class="seg-grid">
+    <div class="seg" style="background:var(--color-background-success)"><div class="seg-t" style="color:var(--color-text-success)">Prioritaires — migrer en 1er</div><div class="seg-s" style="color:var(--color-text-success)">Enjeu fort · effort faible</div><div class="seg-n" style="color:var(--color-text-success)" id="O-sp">—</div></div>
+    <div class="seg" style="background:var(--color-background-warning)"><div class="seg-t" style="color:var(--color-text-warning)">Stratégiques (incl. MAD)</div><div class="seg-s" style="color:var(--color-text-warning)">Enjeu fort · effort fort</div><div class="seg-n" style="color:var(--color-text-warning)" id="O-ss">—</div></div>
+    <div class="seg" style="background:var(--color-background-info)"><div class="seg-t" style="color:var(--color-text-info)">Opportunités rapides</div><div class="seg-s" style="color:var(--color-text-info)">Enjeu faible · effort faible</div><div class="seg-n" style="color:var(--color-text-info)" id="O-so">—</div></div>
+    <div class="seg" style="background:var(--color-background-secondary)"><div class="seg-t" style="color:var(--color-text-secondary)">Fin de déploiement</div><div class="seg-s" style="color:var(--color-text-secondary)">Enjeu faible · effort fort</div><div class="seg-n" id="O-sf">—</div></div>
+  </div>
+</div>
+
+<!-- CHARGE -->
+<div class="pane" id="P-charge">
+  <div class="sec">Dossiers cabinet — formule : 1h création dossier + 3 min/salarié</div>
+  <div class="srt"><label>Salariés moy. — type A</label><input type="range" min="1" max="9" step="1" value="4" id="R-sa" oninput="sync('sa','R')"><input class="ni" type="number" min="1" max="9" value="4" id="N-sa" oninput="sync('sa','N')"><span class="rtag rtag-a">1–9 sal.</span></div>
+  <div class="sr"><label>Part type A dans le migrable</label><input type="range" min="0" max="80" step="5" value="50" id="R-pa" oninput="sync('pa','R')"><input class="ni" type="number" min="0" max="80" value="50" id="N-pa" oninput="sync('pa','N')"></div>
+  <div class="srt"><label>Salariés moy. — type B</label><input type="range" min="10" max="49" step="1" value="18" id="R-sb" oninput="sync('sb','R')"><input class="ni" type="number" min="10" max="49" value="18" id="N-sb" oninput="sync('sb','N')"><span class="rtag rtag-b">10–49 sal.</span></div>
+  <div class="sr"><label>Part type B dans le migrable</label><input type="range" min="0" max="80" step="5" value="35" id="R-pb" oninput="sync('pb','R')"><input class="ni" type="number" min="0" max="80" value="35" id="N-pb" oninput="sync('pb','N')"></div>
+  <div class="srt"><label>Salariés moy. — type C</label><input type="range" min="50" max="300" step="5" value="65" id="R-sc" oninput="sync('sc','R')"><input class="ni" type="number" min="50" max="300" value="65" id="N-sc" oninput="sync('sc','N')"><span class="rtag rtag-c">50+ sal.</span></div>
+  <p style="font-size:10px;color:var(--color-text-tertiary);font-style:italic;margin-bottom:8px">Part type C = 100% — A — B (automatique)</p>
+  <div class="sec">Dossiers MAD — client autonome</div>
+  <div class="mad-box">
+    <div class="mad-t">Segment MAD</div>
+    <div style="font-size:10px;color:var(--color-text-warning);line-height:1.5;margin-bottom:7px">Très attachés à Silae · 50–500+ sal. · OD analytique · CDC renforcée</div>
+    <div class="srt"><label style="color:var(--color-text-warning);font-size:11px">Salariés moy. — MAD</label><input type="range" min="50" max="500" step="10" value="120" id="R-smad" oninput="sync('smad','R')"><input class="ni" type="number" min="50" max="500" value="120" id="N-smad" oninput="sync('smad','N')"><span class="rtag rtag-c">50–500+</span></div>
+    <div class="sr"><label style="color:var(--color-text-warning);font-size:11px">Coefficient CDC MAD (×)</label><input type="range" min="10" max="30" step="1" value="18" id="R-cmad" oninput="syncCmad()"><input class="ni" type="number" min="1.0" max="3.0" step="0.1" value="1.8" id="N-cmad" oninput="syncCmad2()"></div>
+  </div>
+  <div class="cards c4">
+    <div class="card"><div class="l">Dossiers cabinet</div><div class="v" id="O-cd">—</div></div>
+    <div class="card"><div class="l">Dossiers MAD</div><div class="v" id="O-cdmad">—</div><div class="s" style="color:var(--color-text-warning)">×coef CDC</div></div>
+    <div class="card"><div class="l">Heures totales</div><div class="v" id="O-ch">—</div></div>
+    <div class="card"><div class="l">Jours-homme (7h/j)</div><div class="v" id="O-jh">—</div></div>
+  </div>
+  <table class="tbl"><thead><tr><th>Profil</th><th>Réf.</th><th>Sal.</th><th>Tps/dos.</th><th>Nb</th><th>Charge</th></tr></thead><tbody id="O-chtbl"></tbody></table>
+</div>
+
+<!-- ÉQUIPES -->
+<div class="pane" id="P-equipes">
+  <div class="sec">Organisation</div>
+  <div class="sr"><label>Part migration équipe dédiée (%)</label><input type="range" min="0" max="100" step="10" value="50" id="R-pded" oninput="sync('pded','R')"><input class="ni" type="number" min="0" max="100" value="50" id="N-pded" oninput="sync('pded','N')"></div>
+  <div class="sr"><label>Taille équipe dédiée (ETP)</label><input type="range" min="0" max="50" step="1" value="4" id="R-etpd" oninput="sync('etpd','R')"><input class="ni" type="number" min="0" max="50" value="4" id="N-etpd" oninput="sync('etpd','N')"></div>
+  <div class="sr"><label>Disponibilité GP sur site (%)</label><input type="range" min="5" max="50" step="5" value="20" id="R-dgp" oninput="sync('dgp','R')"><input class="ni" type="number" min="5" max="50" value="20" id="N-dgp" oninput="sync('dgp','N')"></div>
+  <div class="sec">Facteurs humains</div>
+  <div class="sr"><label>Résistance au changement (1→10)</label><input type="range" min="1" max="10" step="1" value="4" id="R-res" oninput="sync('res','R')"><input class="ni" type="number" min="1" max="10" value="4" id="N-res" oninput="sync('res','N')"></div>
+  <div class="sr"><label>Surcharge production (1→10)</label><input type="range" min="1" max="10" step="1" value="5" id="R-sur" oninput="sync('sur','R')"><input class="ni" type="number" min="1" max="10" value="5" id="N-sur" oninput="sync('sur','N')"></div>
+  <div class="sr"><label>Turnover prévu (%)</label><input type="range" min="0" max="30" step="1" value="5" id="R-tur" oninput="sync('tur','R')"><input class="ni" type="number" min="0" max="30" value="5" id="N-tur" oninput="sync('tur','N')"></div>
+  <div class="sr"><label>Arrêts maladie / maternité (% GP)</label><input type="range" min="0" max="40" step="1" value="8" id="R-abs" oninput="sync('abs','R')"><input class="ni" type="number" min="0" max="40" value="8" id="N-abs" oninput="sync('abs','N')"></div>
+  <div class="sr"><label>Congés sur la période (%)</label><input type="range" min="0" max="40" step="1" value="10" id="R-cong" oninput="sync('cong','R')"><input class="ni" type="number" min="0" max="40" value="10" id="N-cong" oninput="sync('cong','N')"></div>
+  <div class="sec">Calendrier</div>
+  <div class="ss"><label>Période de migration</label><select id="I-per" onchange="CALC()"><option value="0">Hors période de paie (idéal)</option><option value="1">Mixte</option><option value="2">En période de paie (risqué)</option></select></div>
+  <div class="ss" style="margin-top:6px"><label>Bascule complexes / MAD</label><select id="I-mois" onchange="CALC()"><option value="bon">Janv. à mars (idéal)</option><option value="moy">Avr. à juin</option><option value="mau">Juil. à déc. (déconseillé)</option></select></div>
+  <div class="al ok" id="O-jan-info" style="margin-top:5px">—</div>
+  <div class="card" style="margin-top:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px"><span style="font-size:12px;font-weight:500">Score d'engagement</span><span class="bdg bg" id="O-engbdg">—</span></div>
+    <div class="gt"><div class="gf" id="O-engg"></div></div>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-top:5px">Capacité réelle : <strong id="O-cap">—</strong> j/mois · Coefficient durée : <strong id="O-coef">×1.0</strong></div>
+  </div>
+  <div id="O-magic-eng-note" style="display:none;margin-top:6px" class="al inf">—</div>
+</div>
+
+<!-- STRATÉGIE -->
+<div class="pane" id="P-strategie">
+  <div class="sec">Recommandation automatique</div>
+  <div id="O-rec-banner"></div>
+  <div class="sec">Choisissez votre axe</div>
+  <div class="axes" id="O-axes"></div>
+  <div class="sec">Comparatif des 3 axes</div>
+  <table class="tbl"><thead><tr><th></th><th style="color:#0F6E56">Prudent</th><th style="color:#185FA5">Standard</th><th style="color:#7D4A08">Ambitieux</th></tr></thead><tbody id="O-cmp-body"></tbody></table>
+  <div class="sec">Analyse des risques</div>
+  <div id="O-risks"></div>
+  <div class="card" style="margin-top:8px">
+    <div style="font-size:11px;font-weight:500;margin-bottom:4px">Recommandation détaillée</div>
+    <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.6" id="O-reco">—</div>
+  </div>
+</div>
+
+<!-- PLANNING -->
+<div class="pane" id="P-planning">
+  <div id="O-plan-banner" class="al inf" style="margin-bottom:10px">—</div>
+  <div class="cards c3" style="margin-bottom:10px">
+    <div class="card"><div class="l">Axe sélectionné</div><div class="v" id="O-plan-axe">—</div></div>
+    <div class="card"><div class="l">Durée totale</div><div class="v" id="O-plan-dur">—</div><div class="s" id="O-plan-durs"></div></div>
+    <div class="card"><div class="l">Bascule estimée</div><div class="v" id="O-plan-basc">—</div><div class="s" id="O-plan-bwarn" style="color:var(--color-text-warning)"></div></div>
+  </div>
+  <div class="sec">Phases du projet</div>
+  <div class="m-axis" id="O-m-axis"></div>
+  <div id="O-ph-timeline"></div>
+  <div class="sec">Vue mensuelle</div>
+  <div class="cal-row" id="O-calendar"></div>
+  <div class="sec">Jalons clés</div>
+  <div id="O-jalons"></div>
+  <div class="mad-box" id="O-mad-plan" style="display:none;margin-top:8px">
+    <div class="mad-t">Règles MAD</div>
+    <div style="font-size:10px;color:var(--color-text-warning);line-height:1.6" id="O-mad-plan-d">—</div>
+  </div>
+</div>
+
+<!-- ROI & SYNTHÈSE -->
+<div class="pane" id="P-roi">
+  <button class="magic-btn" onclick="MAGIC()">
+    <span style="font-size:20px">✦</span>
+    Optimisation automatique — Respecter mon délai de migration
+    <span style="font-size:20px">✦</span>
+  </button>
+  <div class="magic-warn" id="O-magic-warn">—</div>
+  <div class="magic-result" id="O-magic-result">
+    <div class="mr-title" id="O-mr-title">—</div>
+    <div class="mr-grid" id="O-mr-grid"></div>
+    <div class="mr-detail" id="O-mr-detail">—</div>
+  </div>
+  <div class="sec">Synthèse économique</div>
+  <div class="cards c4">
+    <div class="card"><div class="l">Charge cabinet (JH)</div><div class="v" id="O-rjh">—</div><div class="s">1h + 3min/sal</div></div>
+    <div class="card"><div class="l">Surcharge MAD (JH)</div><div class="v" id="O-rmad">—</div><div class="s" id="O-rmads" style="color:var(--color-text-warning)">—</div></div>
+    <div class="card"><div class="l">Formation GP (3j/GP)</div><div class="v" id="O-rform">—</div><div class="s" id="O-rforms">—</div></div>
+    <div class="card"><div class="l">Score faisabilité</div><div class="v" id="O-rscore">—</div><div class="s" id="O-rscores">—</div></div>
+  </div>
+  <div class="sec">Facteurs qui majorent le plus la durée</div>
+  <div id="O-facteurs"></div>
+  <div class="sec">Alertes</div>
+  <div id="O-alerts"></div>
+  <div class="sec">Indicateurs de pilotage</div>
+  <table class="tbl"><thead><tr><th>Indicateur</th><th>Fréquence</th><th>Seuil</th></tr></thead>
+    <tbody>
+      <tr><td>Taux dossiers paramétrés</td><td>Hebdo (hors période paie)</td><td>&gt; 10% retard → alerte</td></tr>
+      <tr><td>Taux formation GP</td><td>Par vague</td><td>&lt; 80% avant lancement</td></tr>
+      <tr><td>Bulletins test validés</td><td>Par dossier pilote</td><td>&lt; 2 bulletins / dossier</td></tr>
+      <tr><td>Satisfaction collaborateur</td><td>Fin de sprint</td><td>&lt; 6 / 10</td></tr>
+      <tr><td>Adhésion clients MAD</td><td>Par dossier MAD</td><td>Pas de validation sous 5j</td></tr>
+    </tbody>
+  </table>
+</div>
+</div>
+</div>
+
+<script>
+window._SC='standard';
+function SW(t,btn){document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('a');});document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('a');});document.getElementById('P-'+t).classList.add('a');btn.classList.add('a');CALC();}
+function SEL(s){window._SC=s;CALC();}
+function sync(k,src){var r=document.getElementById('R-'+k),n=document.getElementById('N-'+k);if(!r||!n)return;if(src==='R')n.value=r.value;else r.value=parseFloat(n.value)||0;CALC();}
+function syncCmad(){var r=document.getElementById('R-cmad'),n=document.getElementById('N-cmad');if(n)n.value=(r.value/10).toFixed(1);CALC();}
+function syncCmad2(){var r=document.getElementById('R-cmad'),n=document.getElementById('N-cmad');if(r)r.value=Math.round((parseFloat(n.value)||1)*10);CALC();}
+function GN(id){return parseFloat(document.getElementById(id).value)||0;}
+function GS(id){return document.getElementById(id).value;}
+function SET(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+function FN(n,d){if(d===undefined)d=1;if(n===0)return'0';if(n%1===0)return String(Math.round(n));return n.toFixed(d);}
+function FMH(h){if(h<1)return Math.round(h*60)+'min';if(h<10)return FN(h)+'h';return Math.round(h)+'h';}
+function FMN(n){return Math.round(n).toLocaleString('fr-FR');}
+function addM(d,m){var r=new Date(d);r.setMonth(r.getMonth()+m);return r;}
+function fmtM(d){return d.toLocaleDateString('fr-FR',{month:'short',year:'2-digit'});}
+function fmtML(d){return d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});}
+function fmtD(d){return d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});}
+function setSlider(k,v){var r=document.getElementById('R-'+k),n=document.getElementById('N-'+k);if(r)r.value=Math.round(v*10)/10;if(n)n.value=Math.round(v*10)/10;}
+
+function CALC(){
+  var gp=GN('N-gp'),dos=GN('N-dos'),bul=GN('N-bul'),sites=GN('N-sites');
+  var pctMad=GN('N-mad')/100,src=GS('I-src');
+  var sirh=GS('I-sirh'),sirhd=GN('N-sirhd'),cpsilae=GN('N-cpsilae');
+  var ccn=GN('N-ccn'),cdispo=GN('N-cdispo'),crec=GN('N-crec'),parti=GN('N-parti')/100;
+  var sa=GN('N-sa'),pa=GN('N-pa')/100,sb=GN('N-sb'),pb=GN('N-pb')/100,sc=GN('N-sc'),pc=Math.max(0,1-pa-pb);
+  var smad=GN('N-smad'),cmad=GN('R-cmad')/10;
+  var etpd=GN('N-etpd'),dgp=GN('N-dgp')/100;
+  var res=GN('N-res'),sur=GN('N-sur'),tur=GN('N-tur'),abs=GN('N-abs')/100,cong=GN('N-cong')/100;
+  var per=parseInt(GS('I-per')),mois=GS('I-mois');
+  var dsStr=GS('I-dstart'),deStr=GS('I-dend');
+  var ds=dsStr?new Date(dsStr):null,de=deStr?new Date(deStr):null;
+  var e;
+
+  // SIRH : afficher/masquer champ nb dossiers et info
+  var sirhRow=document.getElementById('sirh-dos-row');
+  var sirhInfo=document.getElementById('O-sirh-info');
+  var sirhNoms={lucca:'Lucca',staffgo:'Staff&Go',eurecia:'Eurécia',kammi:'Kammi'};
+  if(sirh!=='aucun'){
+    if(sirhRow)sirhRow.style.display='grid';
+    if(sirhInfo){sirhInfo.style.display='block';sirhInfo.textContent='SIRH '+sirhNoms[sirh]+' détecté — '+FMN(sirhd)+' dossiers concernés. Surcharge paramétrage API : +30 min/dossier SIRH.';}
+  }else{
+    if(sirhRow)sirhRow.style.display='none';
+    if(sirhInfo)sirhInfo.style.display='none';
+  }
+
+  // Dates
+  var tlW=document.getElementById('O-tl-wrap');
+  if(ds&&de&&de>ds){
+    if(tlW)tlW.style.display='block';
+    var mo=Math.round((de-ds)/(1000*60*60*24*30.5)*10)/10;
+    SET('O-dstart-l',fmtD(ds));SET('O-dend-l',fmtD(de));SET('O-dend-i',FN(mo)+' mois de projet');
+    var now=new Date(),pct2=Math.min(98,Math.max(2,Math.round((now-ds)/(de-ds)*100)));
+    var bar=document.getElementById('O-tl-bar');if(bar){bar.style.width=pct2+'%';bar.textContent=pct2+'% écoulé';}
+    var lbl=document.getElementById('O-tl-lbls');if(lbl)lbl.innerHTML='<span>'+fmtM(ds)+'</span><span style="font-weight:500;color:var(--color-text-primary)">Auj.</span><span>'+fmtM(de)+'</span>';
+    var em=de.getMonth(),tla=document.getElementById('O-tl-alert');
+    if(tla){if(em<=2){tla.className='al ok';tla.textContent='Fin janv-mars — idéale pour dossiers complexes et MAD.';}else if(em<=5){tla.className='al wa';tla.textContent='Fin avr-juin — acceptable. Prévoir revue des cumuls.';}else{tla.className='al wa';tla.textContent='Fin juil-déc — déconseillée pour dossiers complexes/MAD.';}}
+  }else{
+    if(tlW)tlW.style.display='none';
+    SET('O-dstart-l',ds?fmtD(ds):'Non renseignée');SET('O-dend-l',de?fmtD(de):'Non renseignée');SET('O-dend-i','');
+  }
+
+  // Cabinet
+  var dg=Math.round(dos/Math.max(gp,1)),bg2=Math.round(bul/Math.max(gp,1)),nmad=Math.round(dos*pctMad);
+  SET('O-dg',dg);SET('O-bg',FMN(bg2));SET('O-nmad',FMN(nmad));SET('O-gs',FN(gp/Math.max(sites,1)));
+  var ra=document.getElementById('O-rat-a');if(ra){var h='';if(dg>60)h+='<div class="al wa">Ratio dossiers/GP élevé ('+dg+' vs seuil 40)</div>';if(bg2>500)h+='<div class="al wa">Bulletins/GP élevé ('+FMN(bg2)+' vs seuil 300)</div>';if(cpsilae>0)h+='<div class="al da">'+FMN(cpsilae)+' dossier'+(cpsilae>1?'s':'')+' CP Silae exclus du périmètre migrable (fonctionnalité non disponible sur Wagyz).</div>';if(sirh!=='aucun'&&sirhd>0)h+='<div class="al wa">SIRH '+sirhNoms[sirh]+' : '+FMN(sirhd)+' dossiers avec surcharge API +30 min/dossier.</div>';if(!h)h='<div class="al ok">Ratios conformes aux seuils recommandés</div>';ra.innerHTML=h;}
+
+  // CCN — migrabilité : on soustrait d'abord les dossiers CP Silae bloquants
+  var dosDisponibles=Math.max(0,dos-cpsilae);
+  var tm=Math.max(0.05,Math.min(1,(cdispo/Math.max(ccn,1))*(1-parti*0.3)));
+  var tp6=Math.max(tm,Math.min(1,((cdispo+crec)/Math.max(ccn,1))*(1-parti*0.15)));
+  var nm=Math.round(dosDisponibles*tm),np6=Math.round(dosDisponibles*tp6),nmMad=Math.round(nm*pctMad);
+  var pctCpBar=Math.min(1,cpsilae/Math.max(dos,1));
+  e=document.getElementById('O-bm');if(e)e.style.width=Math.round(tm*(1-pctCpBar)*100)+'%';
+  e=document.getElementById('O-br');if(e)e.style.width=Math.round((tp6-tm)*(1-pctCpBar)*100)+'%';
+  e=document.getElementById('O-be');if(e)e.style.width=Math.round((1-tp6)*0.85*(1-pctCpBar)*100)+'%';
+  e=document.getElementById('O-bcp');if(e)e.style.width=Math.round(pctCpBar*100)+'%';
+  e=document.getElementById('O-bma');if(e)e.style.width=Math.round(pctMad*tm*(1-pctCpBar)*100)+'%';
+  SET('O-nm',FMN(nm)+' dos.');SET('O-nr',FMN(np6-nm)+' dos.');SET('O-ne',FMN(Math.round(dosDisponibles*(1-tp6)*0.85))+' dos.');SET('O-ncp',cpsilae>0?'🚫 '+FMN(cpsilae)+' dos.':'0');SET('O-nma2',FMN(nmMad)+' MAD');
+  var mb=document.getElementById('O-mbadge');if(mb){var pp=Math.round(tm*100);mb.className='bdg '+(pp>50?'ok':pp>25?'wa':'da');mb.textContent='Migrabilité : '+pp+'%'+(cpsilae>0?' (hors CP Silae)':'');}
+  SET('O-mn',FMN(nm));SET('O-mnp',Math.round(tm*100)+'% du portefeuille disponible');SET('O-p6',FMN(np6));SET('O-pmad',FMN(nmMad));
+  var ssp=Math.round(nm*0.30),sss=Math.round(nm*0.15)+nmMad,sso=Math.round(nm*0.45),ssf=Math.max(0,nm-ssp-sss-sso);
+  SET('O-sp',FMN(ssp));SET('O-ss',FMN(sss));SET('O-so',FMN(sso));SET('O-sf',FMN(ssf));
+
+  // Charge — NOUVELLE FORMULE : 1h fixe + 3min/salarié
+  // Gain Silae : -50% sur dossiers cabinet, -5% sur MAD
+  var sf2=src==='silae'?0.50:1.0;
+  var ta=(60+sa*3)/60,tb2=(60+sb*3)/60,tc2=(60+sc*3)/60,tmad2=(60+smad*3)/60*cmad;
+  var nmCab=Math.max(0,nm-nmMad);
+  var na=Math.round(nmCab*pa),nb2=Math.round(nmCab*pb),nc2=Math.round(nmCab*pc);
+  var ha=ta*na,hb=tb2*nb2,hc=tc2*nc2,hmad=tmad2*nmMad;
+  // Surcharge SIRH : +30min par dossier concerné (clampé à nm)
+  var sirhNbEff=sirh!=='aucun'?Math.min(sirhd,nm):0;
+  var hSirh=sirhNbEff*(30/60);
+  var tothCab=(ha+hb+hc)*sf2+hSirh,tothMad=hmad*(src==='silae'?0.95:1.0),toth=tothCab+tothMad;
+  var jh=toth/7,jhform=gp*3;
+  SET('O-cd',FMN(nmCab));SET('O-cdmad',FMN(nmMad));SET('O-ch',FMN(Math.round(toth))+'h');SET('O-jh',FN(jh));
+  var ctbl=document.getElementById('O-chtbl');
+  var rowsSirh=sirh!=='aucun'&&sirhNbEff>0?[['SIRH '+sirhNoms[sirh],'API +30min','—','30min',FMN(sirhNbEff),Math.round(hSirh)+'h']]:[];
+  if(ctbl)ctbl.innerHTML=[['A — TPE','1–9',sa,FMH(ta),FMN(na),Math.round(ha)+'h'],['B — PME','10–49',sb,FMH(tb2),FMN(nb2),Math.round(hb)+'h'],['C — Complexe','50+',sc,FMH(tc2),FMN(nc2),Math.round(hc)+'h'],['MAD','50–500+ ×'+cmad.toFixed(1),smad,FMH(tmad2)+'*',FMN(nmMad),Math.round(hmad)+'h']].concat(rowsSirh).map(function(r){return'<tr>'+r.map(function(v,i){return'<td'+(i>0?' style="font-weight:500"':'')+'>'+v+'</td>';}).join('')+'</tr>';}).join('');
+
+  // Engagement — POSTULATS RECALIBRÉS
+  var capBrut=(etpd*22+gp*dgp*22)*Math.max(0.5,1-(abs+cong)*0.7);
+  var cap=Math.max(1,Math.round(capBrut));
+  var engRaw=Math.min(1,(etpd*0.5+gp*dgp*0.5)/Math.max(gp*0.3,1));
+  var penFact=1-(res/10)*0.15-(sur/10)*0.10-(tur/30)*0.05-per*0.05;
+  var engp=Math.max(10,Math.min(100,Math.round(engRaw*penFact*100)));
+  var coefEng=engp>70?1.0:Math.min(1.5,1+(70-engp)/150);
+  e=document.getElementById('O-engg');if(e){e.style.width=engp+'%';e.style.background=engp>65?'var(--color-text-success)':engp>40?'var(--color-text-warning)':'var(--color-text-danger)';}
+  e=document.getElementById('O-engbdg');if(e){e.className='bdg '+(engp>65?'ok':engp>40?'wa':'da');e.textContent=engp>65?'Bon':engp>40?'Moyen':'Insuffisant';}
+  SET('O-cap',cap);SET('O-coef','×'+FN(coefEng,1));
+  var ji=document.getElementById('O-jan-info');
+  if(ji){var msgs={bon:'Bascule janv-mars — idéale.',moy:'Bascule avr-juin — acceptable.',mau:'Bascule juil-déc — déconseillée pour dossiers complexes/MAD.'};var cls2={bon:'al ok',moy:'al wa',mau:'al da'};ji.className=cls2[mois];ji.textContent=msgs[mois];}
+
+  // Durée — RECALIBRÉ (plus de ×cascade)
+  var durBase=jh/Math.max(cap,1);
+  var buf_p=Math.max(0,Math.round(durBase*0.30*10)/10);
+  var buf_s=Math.max(0,Math.round(durBase*0.15*10)/10);
+  var dur_p=Math.max(2,Math.round((durBase+buf_p)*coefEng*10)/10);
+  var dur_s=Math.max(1,Math.round((durBase+buf_s)*coefEng*10)/10);
+  var dur_a=Math.max(1,Math.round(durBase*Math.max(0.85,coefEng*0.9)*10)/10);
+  if(nmMad>0){dur_p+=2;dur_s+=1;dur_a+=1;}
+  // Surcharge SIRH : +0.5 mois si plus de 50 dossiers SIRH
+  if(sirhNbEff>50){dur_p+=0.5;dur_s+=0.5;dur_a+=0.5;}
+  dur_p=Math.min(36,dur_p);dur_s=Math.min(30,dur_s);dur_a=Math.min(24,dur_a);
+  var nV_p=Math.max(1,Math.ceil(dur_p/6));
+  var nV_s=Math.max(1,Math.ceil(dur_s/6));
+  var nV_a=Math.max(1,Math.ceil(dur_a/6));
+  var dosParVague_p=Math.round(nmCab/Math.max(nV_p,1));
+  var dosParVague_s=Math.round(nmCab/Math.max(nV_s,1));
+  var dosParVague_a=Math.round(nmCab/Math.max(nV_a,1));
+
+  var complexScore=(ccn>200?2:ccn>100?1:0)+(parti>0.3?2:parti>0.15?1:0)+(nmMad>30?2:nmMad>0?1:0);
+  var engScore=(engp<40?0:engp<65?1:2);
+  var recAxe='standard';
+  if(engScore===0||complexScore>=4||nmMad>50)recAxe='prudent';
+  else if(engScore===2&&complexScore<=1&&nmMad===0)recAxe='ambitieux';
+
+  var sirhDesc=sirh!=='aucun'&&sirhNbEff>0?' · SIRH '+sirhNoms[sirh]+' : +30min/dos. API ('+FMN(sirhNbEff)+' dos.)':'';
+  var AX={
+    prudent:{col:'#0F6E56',bg:'var(--color-background-success)',bc:'var(--color-border-success)',label:'Prudent',dur:dur_p,nv:nV_p,dos:dosParVague_p,coef:coefEng,desc:'Buffer +30% · Sprints sécurisés · Idéal si équipe peu disponible ou CCN complexes.',badge:'Sécurisé',risk:'Faible'},
+    standard:{col:'#185FA5',bg:'var(--color-background-info)',bc:'var(--color-border-info)',label:'Standard',dur:dur_s,nv:nV_s,dos:dosParVague_s,coef:coefEng,desc:'Buffer +15% · Approche recommandée pour la majorité des cabinets.',badge:'Équilibré',risk:'Modéré'},
+    ambitieux:{col:'#7D4A08',bg:'var(--color-background-warning)',bc:'var(--color-border-warning)',label:'Ambitieux',dur:dur_a,nv:nV_a,dos:dosParVague_a,coef:Math.max(0.85,coefEng*0.9),desc:'Pas de buffer · Parallélisation maximale · Engagement fort requis.',badge:'Rapide',risk:'Élevé'}
+  };
+
+  var rb=document.getElementById('O-rec-banner');
+  if(rb){var ax0=AX[recAxe];rb.innerHTML='<div class="rec-banner" style="border-color:'+ax0.bc+';background:'+ax0.bg+'"><div style="font-size:10px;font-weight:500;text-transform:uppercase;color:'+ax0.col+';margin-bottom:4px">Stratégie recommandée</div><div style="font-size:16px;font-weight:500;color:'+ax0.col+';margin-bottom:6px">Axe '+ax0.label+' — '+FN(ax0.dur)+' mois</div><div style="font-size:12px;line-height:1.6;color:'+ax0.col+'">'+ax0.desc+(nmMad>0?' Les '+FMN(nmMad)+' dossiers MAD sont positionnés en sprint 3, bascule janv-mars.':'')+(cpsilae>0?' ⚠ '+FMN(cpsilae)+' dossiers CP Silae exclus — migration différée.':'')+sirhDesc+'</div></div>';}
+
+  var ag=document.getElementById('O-axes');
+  if(ag){ag.innerHTML=['prudent','standard','ambitieux'].map(function(k){var ax=AX[k],isSel=(k===window._SC),isRec=(k===recAxe);return'<div class="axe'+(isSel?' sel':'')+'" onclick="SEL(\''+k+'\')" style="border-color:'+(isSel?ax.bc:'var(--color-border-tertiary)')+';background:'+(isSel?ax.bg:'var(--color-background-primary)')+'"><div class="axe-tag" style="color:'+ax.col+'">'+ax.label+(isRec?' ★ recommandé':'')+'</div><div class="axe-dur" style="color:'+ax.col+'">'+FN(ax.dur)+' mois</div><div class="axe-row">'+ax.nv+' vague'+(ax.nv>1?'s':'')+' · '+FMN(ax.dos)+' dos./vague</div><div class="axe-row">Capacité : '+cap+' j/mois · ×'+FN(ax.coef,1)+'</div>'+(nmMad>0?'<div class="axe-row" style="color:var(--color-text-warning)">MAD : sprint 3, janv-mars</div>':'')+(cpsilae>0?'<div class="axe-row" style="color:var(--color-text-danger)">🚫 '+FMN(cpsilae)+' CP Silae exclus</div>':'')+'<span class="axe-badge" style="background:'+ax.bg+';color:'+ax.col+'">'+ax.badge+'</span></div>';}).join('');}
+
+  var cb=document.getElementById('O-cmp-body');
+  if(cb){var rows=[['Durée totale',FN(dur_p)+' mois',FN(dur_s)+' mois',FN(dur_a)+' mois'],['Nb de vagues',String(nV_p),String(nV_s),String(nV_a)],['Dossiers / vague',FMN(dosParVague_p),FMN(dosParVague_s),FMN(dosParVague_a)],['Buffer','+30%','+15%','0%'],['Risque opérationnel','Faible','Modéré','Élevé'],['Capacité requise',cap+' j/mois',cap+' j/mois',cap+' j/mois'],['Profil adapté','Engagement < 65%','Profil standard','Engagement > 70%']];cb.innerHTML=rows.map(function(r){return'<tr><td style="font-weight:500;color:var(--color-text-secondary)">'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>';}).join('');}
+
+  var rks=[{l:'Capacité équipe ('+cap+' j/mois)',s:cap<10?'da':cap<20?'wa':'ok'},{l:'Score engagement ('+engp+'%)',s:engp<40?'da':engp<65?'wa':'ok'},{l:'Absences ('+Math.round((abs+cong)*100)+'%)',s:(abs+cong)>0.25?'da':(abs+cong)>0.15?'wa':'ok'},{l:'Dossiers MAD ('+FMN(nmMad)+')',s:nmMad>50?'da':nmMad>20?'wa':'ok'},{l:'Dossiers CP Silae bloquants ('+FMN(cpsilae)+')',s:cpsilae>100?'da':cpsilae>0?'wa':'ok'},{l:'SIRH ('+FMN(sirhNbEff)+' dos.)',s:sirhNbEff>100?'wa':sirhNbEff>0?'wa':'ok'},{l:'Volume CCN ('+ccn+' uniques)',s:ccn>300?'da':ccn>150?'wa':'ok'},{l:'Migrabilité ('+Math.round(tm*100)+'%)',s:tm<0.2?'da':tm<0.5?'wa':'ok'},{l:'Résistance au changement',s:res>7?'da':res>4?'wa':'ok'},{l:'Période de migration',s:per===2?'da':per===1?'wa':'ok'},{l:'Bascule complexes/MAD',s:mois==='mau'?'da':mois==='moy'?'wa':'ok'}];
+  var rl=document.getElementById('O-risks');if(rl)rl.innerHTML=rks.map(function(r){return'<div class="rrow"><div class="rdot" style="background:'+(r.s==='ok'?'var(--color-text-success)':r.s==='wa'?'var(--color-text-warning)':'var(--color-text-danger)')+'"></div><span style="flex:1">'+r.l+'</span><span class="bdg '+r.s+'">'+(r.s==='ok'?'Maîtrisé':r.s==='wa'?'Vigilance':'Critique')+'</span></div>';}).join('');
+
+  var sc3=window._SC,axSel=AX[sc3];
+  SET('O-reco','Axe '+axSel.label+' — '+FN(axSel.dur)+' mois. '+axSel.desc+(nmMad>0?' '+FMN(nmMad)+' dossiers MAD : audit OD, formats import, bascule janv-mars.':'')+(cpsilae>0?' '+FMN(cpsilae)+' dossiers CP Silae exclus du périmètre : traitement différé.':'')+(sirhNbEff>0?' SIRH '+sirhNoms[sirh]+' : +30min/dossier pour paramétrage API.':''));
+
+  // Planning
+  var durPlan=axSel.dur,startDate=ds?new Date(ds):new Date(),totalMois=Math.max(2,Math.ceil(durPlan));
+  var pb2=document.getElementById('O-plan-banner');
+  if(pb2){pb2.className='al '+(sc3==='prudent'?'ok':sc3==='ambitieux'?'wa':'inf');pb2.textContent='Axe '+axSel.label+' — '+FN(durPlan)+' mois · '+axSel.nv+' vague'+(axSel.nv>1?'s':'')+' · '+FMN(axSel.dos)+' dos./vague · Capacité '+cap+' j/mois'+(cpsilae>0?' · 🚫 '+FMN(cpsilae)+' CP Silae exclus':'')+(sirhNbEff>0?' · SIRH +30min/dos.':'');}
+  SET('O-plan-axe',axSel.label);SET('O-plan-dur',FN(durPlan)+' mois');SET('O-plan-durs',sc3===recAxe?'axe recommandé':'(recommandé : '+AX[recAxe].label+')');
+  var bascDate=addM(startDate,totalMois);SET('O-plan-basc',fmtML(bascDate));
+  var bw='';if(per===2)bw='Période de paie — décaler jalons';if(mois==='mau'&&nmMad>0)bw+=(bw?' · ':'')+'Bascule MAD déconseillée juil-déc';SET('O-plan-bwarn',bw);
+  var phases=[{l:'Diagnostic CCN'+(nmMad>0?'+audit MAD':''),s:0,len:.10,c:'#534AB7'},{l:'Paramétrage & formation GP',s:.08,len:.22,c:'#185FA5'},{l:'Sprint 1 — dossiers simples',s:.28,len:.22,c:'#1D9E75'},{l:'Sprint 2 — dossiers standards',s:.50,len:.22,c:'#3B6D11'},{l:'Sprint 3 — complexes'+(nmMad>0?'+MAD':''),s:.72,len:.18,c:'#BA7517'},{l:'Recette & bascule',s:.90,len:.10,c:'#993C1D'}];
+  var ma=document.getElementById('O-m-axis');if(ma){ma.innerHTML='';for(var i=0;i<Math.min(totalMois,18);i++){var md=addM(startDate,i);ma.innerHTML+='<div class="m-tick">'+md.toLocaleDateString('fr-FR',{month:'short'})+'</div>';}}
+  var pt=document.getElementById('O-ph-timeline');if(pt){pt.innerHTML=phases.map(function(p){var pS=addM(startDate,Math.round(p.s*totalMois));return'<div class="ph-row"><div class="ph-lbl">'+p.l+'</div><div class="ph-trk"><div class="ph-bar" style="left:'+Math.round(p.s*100)+'%;width:'+Math.round(p.len*100)+'%;background:'+p.c+'">'+p.l.split(' ')[0]+' ('+pS.toLocaleDateString('fr-FR',{month:'short',year:'2-digit'})+')  </div></div></div>';}).join('');}
+  var cal=document.getElementById('O-calendar');if(cal){var pN=['Diagnostic','Formation','Sprint 1','Sprint 2','Sprint 3','Recette'],pC=['#534AB7','#185FA5','#1D9E75','#3B6D11','#BA7517','#993C1D'],calH='';for(var ci=0;ci<Math.min(totalMois,18);ci++){var md2=addM(startDate,ci),mpct=ci/totalMois,pidx=0;for(var pj=phases.length-1;pj>=0;pj--){if(mpct>=phases[pj].s){pidx=pj;break;}}var isJM=md2.getMonth()<=2;calH+='<div class="cal-m" style="border-color:'+pC[pidx]+';background:'+(isJM?'var(--color-background-success)':'var(--color-background-secondary)')+'"><div class="cm-l" style="color:'+pC[pidx]+'">'+md2.toLocaleDateString('fr-FR',{month:'short'})+'</div><div class="cm-p" style="color:'+pC[pidx]+'">'+pN[pidx]+(isJM?'<br>Jan-Mars':'')+'</div></div>';}if(totalMois>18)calH+='<div class="cal-m"><div class="cm-l" style="color:var(--color-text-tertiary)">+'+(totalMois-18)+'m</div></div>';cal.innerHTML=calH;}
+  var jalons=[{pct:0.00,lbl:'Démarrage kick-off',cond:'Équipe projet constituée · outil configuré',c:'#534AB7'},{pct:0.10,lbl:'Diagnostic CCN validé',cond:'Taux de migrabilité calculé · MAD identifiés'+(cpsilae>0?' · CP Silae exclus du périmètre':''),c:'#534AB7'},{pct:0.22,lbl:'Formation GP (3j/GP)',cond:gp+' GP × 3j = '+jhform+' j · avant sprint 1',c:'#185FA5'},{pct:0.30,lbl:'Sprint 1 — lancement',cond:'Dossiers type A/B simples · hors période de paie',c:'#1D9E75'},{pct:0.52,lbl:'Sprint 2 — standards',cond:'Dossiers type B/C · recette continue'+(sirhNbEff>0?' · API '+sirhNoms[sirh]+' paramétrée':''),c:'#3B6D11'},{pct:0.72,lbl:'Sprint 3 — complexes'+(nmMad>0?'+MAD':''),cond:nmMad>0?FMN(nmMad)+' MAD : bascule janv-mars obligatoire':'Dossiers type C · particularités',c:'#BA7517'},{pct:0.90,lbl:'Recette finale & bascule',cond:'Bulletins test validés · DSN Wagyz OK',c:'#993C1D'},{pct:1.00,lbl:'Migration complète',cond:'Tous dossiers migrés · stabilisation 1 mois'+(cpsilae>0?' · CP Silae : migration différée':' '),c:'#0F6E56'}];
+  var jl=document.getElementById('O-jalons');if(jl){jl.innerHTML=jalons.map(function(j){var jDate=addM(startDate,Math.round(j.pct*totalMois)),isPast=jDate<new Date();return'<div class="jrow"><div class="jdate" style="color:'+j.c+'">'+jDate.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})+(isPast?' (passé)':'')+'</div><div><div class="jlbl">'+j.lbl+'</div><div class="jcond">'+j.cond+'</div></div><div class="jdot" style="background:'+j.c+'"></div></div>';}).join('');}
+  var mp=document.getElementById('O-mad-plan'),mpd=document.getElementById('O-mad-plan-d');
+  if(nmMad>0){if(mp)mp.style.display='block';var madDate=addM(startDate,Math.round(0.72*totalMois));if(mpd)mpd.textContent=FMN(nmMad)+' dossiers MAD positionnés à partir de '+fmtML(madDate)+'. Règles : audit OD · validation format import · bascule janv-mars · formation client ½j · double contrôle 1 mois post-bascule.';}else{if(mp)mp.style.display='none';}
+
+  // ROI
+  var jCab=tothCab/7,jMad=tothMad/7;
+  SET('O-rjh',FN(jCab)+' j');SET('O-rmad',nmMad>0?FN(jMad)+' j':'—');SET('O-rmads',nmMad>0?FMN(nmMad)+' dos. ×'+cmad.toFixed(1):'aucun dossier MAD');
+  SET('O-rform',jhform+' j');SET('O-rforms',gp+' GP × 3j');
+  var fsc=Math.max(0,Math.min(100,Math.round(engp*0.30+(tm*100)*0.25+(sc3==='standard'?20:sc3==='prudent'?15:10)+(coefEng<=1.1?10:0)+(nmMad>50?-10:0)+(cpsilae>0?-5:0)+(mois==='bon'?10:mois==='mau'?-10:0))));
+  SET('O-rscore',fsc+'/100');SET('O-rscores',fsc>65?'Faisable':'Risque identifié');
+  var tb2=document.getElementById('TOP');if(tb2){tb2.className='bdg '+(fsc>65?'ok':fsc>40?'wa':'da');tb2.textContent='Faisabilité : '+(fsc>65?'bonne':fsc>40?'moyenne':'risquée')+' ('+fsc+'/100)';}
+
+  // Facteurs
+  var durNom=Math.max(0.1,durBase);
+  var facteurs=[
+    {l:'Capacité mensuelle ('+cap+' j/mois)',impact:Math.round((1/cap)*durNom*10)/10,desc:'↑ ETP ou ↑ dispo GP = réduction directe de la durée',key:'cap'},
+    {l:'Coefficient engagement (×'+FN(coefEng,2)+')',impact:Math.round((coefEng-1)*durNom*10)/10,desc:'↑ engagement = coefficient proche de ×1.0',key:'eng'},
+    {l:'Taux de migrabilité ('+Math.round(tm*100)+'%)',impact:Math.round((1-tm)*durNom*0.5*10)/10,desc:'↑ CCN disponibles = plus de dossiers en vague 1',key:'migr'},
+    {l:'Dossiers MAD ('+FMN(nmMad)+')',impact:nmMad>0?dur_s-(Math.max(1,Math.round((durBase+buf_s)*coefEng*10)/10)):0,desc:'Toujours en sprint 3 + +1 à +2 mois',key:'mad'},
+    {l:'Charge totale ('+FN(jh)+' JH)',impact:Math.round(jh/Math.max(cap,1)*0.5*10)/10,desc:'Formule 1h+3min/sal · ↓ volume = charge moindre',key:'charge'},
+    {l:'SIRH ('+FMN(sirhNbEff)+' dos. API)',impact:sirhNbEff>0?Math.round(hSirh/7/Math.max(cap,1)*10)/10:0,desc:'Chaque SIRH nécessite +30 min de paramétrage API',key:'sirh'},
+  ].filter(function(f){return f.impact>0;}).sort(function(a,b){return b.impact-a.impact;});
+  var fd=document.getElementById('O-facteurs');
+  if(fd){fd.innerHTML=facteurs.slice(0,5).map(function(f,i){var pct=Math.min(100,Math.round(f.impact/durPlan*100));var colors=['#993C1D','#BA7517','#185FA5','#0F6E56','#534AB7'];return'<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="font-weight:500">'+f.l+'</span><span style="color:var(--color-text-secondary)">impact estimé : +'+FN(f.impact)+' mois</span></div><div style="height:8px;background:var(--color-border-tertiary);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+colors[i]+';border-radius:4px;transition:width .3s"></div></div><div style="font-size:10px;color:var(--color-text-tertiary);margin-top:2px">'+f.desc+'</div></div>';}).join('');}
+
+  var als=[];
+  if(tm<0.2)als.push({t:'da',m:'Migrabilité très faible ('+Math.round(tm*100)+'%) — vérifier le catalogue CCN Wagyz.'});
+  if(cpsilae>0)als.push({t:'da',m:'🚫 '+FMN(cpsilae)+' dossier'+(cpsilae>1?'s':'')+' avec gestion CP sur Silae exclus du périmètre migrable — fonctionnalité non disponible sur Wagyz. Migration différée.'});
+  if(sirhNbEff>0)als.push({t:'wa',m:'SIRH '+sirhNoms[sirh]+' : '+FMN(sirhNbEff)+' dossiers nécessitent un paramétrage API (+30 min/dossier). Prévoir une ressource technique dédiée.'});
+  if(nmMad>50)als.push({t:'da',m:FMN(nmMad)+' dossiers MAD — CDC renforcée, audit OD, formats import à valider.'});
+  else if(nmMad>0)als.push({t:'wa',m:FMN(nmMad)+' dossiers MAD — formation spécifique et audit OD à prévoir.'});
+  if(cap<10)als.push({t:'da',m:'Capacité très faible ('+cap+' j/mois) — principal facteur de durée longue. Augmenter les ETP dédiés.'});
+  if(engp<40)als.push({t:'da',m:'Engagement insuffisant — augmenter impérativement les ressources dédiées avant de lancer.'});
+  if(per===2)als.push({t:'wa',m:'Migration en période de paie (20 au 5) — planifier les jalons hors de cette fenêtre.'});
+  if(mois==='mau'&&nmMad>0)als.push({t:'wa',m:'Bascule complexes/MAD juil-déc — reprises par cumul importantes. Décaler à janv-mars.'});
+  if(mois==='bon')als.push({t:'ok',m:'Bascule janv-mars ciblée — idéale pour limiter les reprises par cumul.'});
+  if(src==='silae')als.push({t:'ok',m:'Import natif Wagyz depuis Silae — gain -50% sur la charge de paramétrage cabinet.'});
+  if(!als.length)als.push({t:'ok',m:'Aucune alerte majeure sur la configuration actuelle.'});
+  var ad=document.getElementById('O-alerts');if(ad)ad.innerHTML=als.map(function(a){return'<div class="al '+a.t+'">'+a.m+'</div>';}).join('');
+
+  window._CALC_STATE={gp,dos,bul,sites,pctMad,src,sirh,sirhd,sirhNbEff,cpsilae,ccn,cdispo,crec,parti,sa,pa,sb,pb,sc,pc,smad,cmad,etpd,dgp,res,sur,tur,abs,cong,per,mois,dsStr,deStr,jh,jhform,nm,nmMad,nmCab,cap,engp,coefEng,tm,dur_p,dur_s,dur_a,recAxe,durBase,toth,tothCab,tothMad,sf2,buf_s};
+}
+
+
+
+// ✦ BOUTON MAGIQUE
+function MAGIC(){
+  var w=document.getElementById('O-magic-warn');
+  var r=document.getElementById('O-magic-result');
+  w.style.display='none';r.style.display='none';
+  var dsStr=GS('I-dstart'),deStr=GS('I-dend');
+  if(!dsStr||!deStr){w.textContent='⚠ Renseignez d\'abord la date de démarrage et la date de fin cible dans l\'onglet Cabinet.';w.style.display='block';return;}
+  var ds=new Date(dsStr),de=new Date(deStr);
+  if(de<=ds){w.textContent='⚠ La date de fin doit être postérieure à la date de démarrage.';w.style.display='block';return;}
+  var delai=Math.round((de-ds)/(1000*60*60*24*30.5)*10)/10;
+  var S=window._CALC_STATE;if(!S){CALC();S=window._CALC_STATE;}
+  var durActuelle=S['dur_'+window._SC]||S.dur_s;
+  if(delai>=durActuelle){
+    var wt=document.getElementById('O-mr-title'),wg=document.getElementById('O-mr-grid'),wd=document.getElementById('O-mr-detail');
+    if(wt)wt.textContent='✦ Délai déjà compatible avec l\'axe '+window._SC.charAt(0).toUpperCase()+window._SC.slice(1)+' ('+FN(durActuelle)+' mois < '+FN(delai)+' mois). Aucun ajustement nécessaire.';
+    if(wg)wg.innerHTML='';
+    if(wd)wd.textContent='Vous pouvez même envisager un axe plus prudent si vous souhaitez davantage de buffer.';
+    r.style.display='block';return;
+  }
+  var jh=S.jh,sf2=S.sf2,nmMad=S.nmMad,coefEng=S.coefEng;
+  var delaiNet=delai-(nmMad>0?(window._SC==='prudent'?2:1):0);
+  var capNecessaire=Math.ceil(jh/(delaiNet/Math.max(0.85,coefEng)/Math.max(0.7,sf2)));
+  var capActuelle=S.cap;
+  var gp=S.gp;
+  var etpdActuel=GN('N-etpd'),dgpActuel=GN('N-dgp')/100;
+  var etpdNecessaire=Math.ceil(capNecessaire/22-gp*dgpActuel);
+  var etpdCible=Math.max(etpdActuel,etpdNecessaire);
+  var capAvecETP=etpdCible*22;
+  var capManquante=Math.max(0,capNecessaire-capAvecETP);
+  var dgpCible=Math.min(0.50,dgpActuel+capManquante/(gp*22));
+  var etpdNew=Math.min(50,Math.max(etpdActuel,etpdCible));
+  var dgpNew=Math.min(50,Math.max(dgpActuel*100,Math.round(dgpCible*100/5)*5));
+  setSlider('etpd',etpdNew);setSlider('dgp',dgpNew);
+  document.getElementById('N-etpd').value=etpdNew;document.getElementById('N-dgp').value=dgpNew;
+  document.getElementById('R-etpd').value=etpdNew;document.getElementById('R-dgp').value=dgpNew;
+  var capSimulee=Math.max(capNecessaire,etpdCible*22+gp*dgpCible*22)*Math.max(0.5,1-(S.abs+S.cong)*0.7);
+  var durSimulee=Math.round(S.durBase/Math.max(1,capSimulee)*coefEng*sf2*10)/10+(nmMad>0?1:0);
+  var axeOptimal=durSimulee<=delai*0.85?'ambitieux':durSimulee<=delai?'standard':'prudent';
+  window._SC=axeOptimal;
+  CALC();
+  var note=document.getElementById('O-magic-eng-note');if(note){note.style.display='block';note.textContent='✦ Optimisation automatique appliquée pour respecter votre délai de '+FN(delai)+' mois.';}
+  var durNouvelle=window._CALC_STATE['dur_'+axeOptimal]||window._CALC_STATE.dur_s;
+  var faisable=durNouvelle<=delai;
+  var mr=document.getElementById('O-mr-title'),mg2=document.getElementById('O-mr-grid'),md=document.getElementById('O-mr-detail');
+  if(mr)mr.innerHTML='<span style="font-size:16px">✦</span> Optimisation '+(faisable?'réussie — délai respecté':'partielle — délai approché au maximum')+' <span style="font-size:16px">✦</span>';
+  var cards=[{l:'Durée estimée',v:FN(durNouvelle)+' mois',o:FN(durActuelle)+' mois avant',ok:faisable},{l:'ETP dédiés',v:etpdNew+' ETP',o:FN(etpdActuel)+' ETP avant',ok:etpdNew>etpdActuel},{l:'Dispo GP sur site',v:dgpNew+'%',o:FN(Math.round(dgpActuel*100))+'% avant',ok:dgpNew>Math.round(dgpActuel*100)},{l:'Axe stratégique',v:axeOptimal.charAt(0).toUpperCase()+axeOptimal.slice(1),o:'',ok:true},{l:'Capacité mensuelle',v:window._CALC_STATE.cap+' j/mois',o:capActuelle+' j/mois avant',ok:window._CALC_STATE.cap>capActuelle},{l:'Délai disponible',v:FN(delai)+' mois',o:'délai cible',ok:faisable}];
+  if(mg2)mg2.innerHTML=cards.map(function(c){return'<div class="mr-card"><div class="ml">'+c.l+'</div><div class="mv" style="color:'+(c.ok?'var(--color-text-success)':'var(--color-text-warning)')+'">'+c.v+'</div><div class="mo">'+c.o+'</div></div>';}).join('');
+  var detail='';
+  if(faisable){detail='Plan optimal trouvé. L\'axe '+axeOptimal+' avec '+etpdNew+' ETP dédiés et '+dgpNew+'% de disponibilité GP permet de terminer la migration en '+FN(durNouvelle)+' mois, dans votre délai de '+FN(delai)+' mois.\n\nRessources à présenter aux dirigeants : '+etpdNew+' ETP dédiés migration + '+FN(Math.round(gp*dgpNew/100*10)/10)+' ETP équivalents GP sur site à '+dgpNew+'% de leur temps. Formation : '+S.gp+' GP × 3 jours = '+S.jhform+' jours-homme.';}
+  else{detail='Même avec les ressources maximales disponibles, le délai de '+FN(delai)+' mois est très contraint pour '+FMN(S.nm)+' dossiers migrables.\n\nOptions à soumettre aux dirigeants :\n(1) Réduire le périmètre de la 1ère vague — commencer par les dossiers prioritaires ('+FMN(Math.round(S.nm*0.30))+' dossiers) en '+FN(Math.max(2,Math.round(durNouvelle*0.5)))+' mois.\n(2) Augmenter davantage les ressources dédiées au-delà de '+etpdNew+' ETP.\n(3) Accepter un délai de '+FN(durNouvelle)+' mois au lieu de '+FN(delai)+' mois.';}
+  if(md)md.textContent=detail;
+  r.style.display='block';
+  // Revenir sur ROI après navigation vers Équipes
+  var roiBtnTarget=null;
+  document.querySelectorAll('.nav button').forEach(function(b){if(b.textContent.indexOf('ROI')>=0)roiBtnTarget=b;});
+  if(roiBtnTarget)roiBtnTarget.click();
+}
+
+// Init
+(function(){
+  var now=new Date();
+  document.getElementById('I-dstart').value=new Date(now.getFullYear(),now.getMonth()+1,1).toISOString().split('T')[0];
+  document.getElementById('I-dend').value=new Date(now.getFullYear()+1,2,31).toISOString().split('T')[0];
+  CALC();
+})();
+</script>
+</body>
+</html>
